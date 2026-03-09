@@ -257,44 +257,82 @@ public class Punto {
 
 ## 16. Si un atributo va a tener un método "getter" y "setter" públicos, ¿no es mejor declararlo público? ¿Cuál es la convención más habitual sobre los atributos, que sean públicos o privados? ¿Tiene esto algo que ver con las "invariantes de clase"?
 
-### Respuesta
+No es mejor declarar público un atributo aunque tenga getter y setter públicos, porque los atributos privados permiten control mediante validación en setters y mantenimiento de invariantes de clase, como consistencia interna. La convención habitual en Java es declarar atributos privados (encapsulación) y usar getters/setters públicos. Las invariantes de clase (condiciones que deben cumplirse siempre, ej. edad >=0) se protegen con esta práctica, evitando accesos directos que las rompan
 
 
 ## 17. ¿Qué significa que una clase sea **inmutable**? ¿qué es un método modificador? ¿Un método modificador es siempre un "setter"? ¿Tiene ventajas que una clase sea inmutable?
 
-### Respuesta
+Una clase inmutable tiene objetos cuyo estado no cambia tras crearse (sin setters, campos final). Un método modificador altera el estado (setters o métodos que cambian campos); no siempre es setter, puede ser cualquier mutador. Ventajas: thread-safety sin sincronización, predictibilidad, facilidad de uso en colecciones concurrentes y reducción de errores por mutación inesperada
 
 
 ## 18. ¿Es recomendable incluir métodos "setter" siempre y como convención?
 
-### Respuesta
+No es recomendable incluir setters siempre; solo si el estado debe modificarse post-construcción y con validación. Prefiere constructores para inicializar y clases inmutables cuando posible, evitando setters innecesarios que rompen encapsulación.
+
 
 
 ## 19. ¿La clase `String` en Java es mutable o inmutable? ¿Qué ocurre al concatenar dos cadenas? ¿Qué debemos hacer si vamos a hacer una operación que implique concatenar muchas veces para construir paso a paso una cadena muy larga?
 
-### Respuesta
+La clase String es inmutable. Al concatenar (+), se crea un nuevo objeto String, ineficiente para muchas operaciones por gasto de memoria/tiempo. Para cadenas largas con múltiples concatenaciones, usa StringBuilder (mutable, eficiente con append() y toString() final).
 
 
 ## 20. En POO ¿Cómo se comparan objetos de una misma clase? ¿Por su contenido o por su identidad? ¿Qué es el método equals en Java? ¿Qué hace por defecto? ¿Cómo se deben comparar dos cadenas en Java? 
 
-### Respuesta
+En POO, por defecto se comparan por identidad (referencia en memoria, ==), no contenido. equals(Object obj) en Object compara por identidad por defecto; se sobrescribe para contenido lógico. Compara cadenas con str1.equals(str2), no == (salvo interned strings).
 
 
 ## 21. ¿Qué son las clases "wrapper" en un lenguaje de programación orientado a objetos? ¿Cómo se hace? ¿Es un proceso automático? ¿Qué ventajas tienen? ¿Todos los lenguajes orientados a objetos tienen tipos primitivos y necesitan wrappers? 
 
-### Respuesta
+Clases wrapper encapsulan primitivos (ej. Integer para int, Double para double) como objetos. Se crean con constructores/autoboxing (automático en Java 5+); ventajas: uso en colecciones (no aceptan primitivos), nullables, métodos utilitarios (parse, valueOf). No todos lenguajes OO tienen primitivos (ej. Python no); Java sí los necesita por performance, wrappers para genéricos.
 
 
 ## 22. ¿En POO qué es un **tipo de dato enumerado**? ¿En Java, un tipo de dato enumerado es una clase? ¿Qué ventajas tienen en términos de encapsulación los enumerados en Java?
 
-### Respuesta
+Un tipo enumerado (enum) define conjunto fijo de constantes con nombre, más seguro que constantes int. En Java, un enum es clase especial (hereda Enum), con constructor/atributos/métodos. Ventajas en encapsulación: campos privados, métodos controlados; previene valores inválidos y permite lógica asociada.
+
+
 
 
 ## 23. Crea un tipo enumerado en Java que se llame `Mes`, con doce posibles instancias y que además proporcione métodos para obtener cuántos días tiene ese mes, el ordinal de ese mes en el año (1-12), empleando atributos privados y constructores del tipo enumerado.
 
-### Respuesta
+public enum Mes {
+    ENERO(31, 1), FEBRERO(28, 2), MARZO(31, 3), ABRIL(30, 4),
+    MAYO(31, 5), JUNIO(30, 6), JULIO(31, 7), AGOSTO(31, 8),
+    SEPTIEMBRE(30, 9), OCTUBRE(31, 10), NOVIEMBRE(30, 11), DICIEMBRE(31, 12);
+
+    private final int dias;
+    private final int ordinalMes;
+
+    Mes(int dias, int ordinalMes) {
+        this.dias = dias;
+        this.ordinalMes = ordinalMes;
+    }
+
+    public int getDias() { return dias; }
+    public int getOrdinal() { return ordinalMes; }
+}
+Usa atributos privados y constructor para días/ordinal (1-12);
 
 
 ## 24. Añade a la clase `Mes` del ejercicio anterior cuatro métodos para devolver si ese mes tiene algunos días de invierno, primavera, verano u otoño, indicando con un booleano el hemisferio (norte o sur, parámetro `enHemisferioNorte`). Es decir: `esDePrimavera(boolean esHemisferioNorte)`, `esDeVerano(boolean esHemisferioNorte)`, `esDeOtoño(boolean esHemisferioNorte)`, `esDeInvierno(boolean esHemisferioNorte)`
 
-### Respuesta
+public boolean esDeInvierno(boolean enHemisferioNorte) {
+    if (enHemisferioNorte) return ordinalMes >= 12 || ordinalMes <= 2;
+    return ordinalMes >= 6 && ordinalMes <= 8;
+}
+
+public boolean esDePrimavera(boolean enHemisferioNorte) {
+    if (enHemisferioNorte) return ordinalMes >= 3 && ordinalMes <= 5;
+    return ordinalMes >= 9 && ordinalMes <= 11;
+}
+
+public boolean esDeVerano(boolean enHemisferioNorte) {
+    if (enHemisferioNorte) return ordinalMes >= 6 && ordinalMes <= 8;
+    return ordinalMes >= 12 || ordinalMes <= 2;
+}
+
+public boolean esDeOtoño(boolean enHemisferioNorte) {
+    if (enHemisferioNorte) return ordinalMes >= 9 && ordinalMes <= 11;
+    return ordinalMes >= 3 && ordinalMes <= 5;
+}
+
